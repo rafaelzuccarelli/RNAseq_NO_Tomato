@@ -36,6 +36,21 @@ for line in input_GO:
 	line_list=list(line.split('\t'))
 	dic_GO[line_list[0].replace('"', '')] = line_list[-1].rstrip("\n").replace('"', '')
 
+input_MapMan_bin_file=sys.argv[7]
+input_MapMan_bin=open(input_MapMan_bin_file, 'r', encoding="utf-8")
+dic_MapMan_bin = {}
+for line in input_MapMan_bin:
+	line_list=list(line.split('\t'))
+	dic_MapMan_bin[line_list[0].replace('"', '')] = line_list[-1].rstrip("\n").replace('"', '')
+
+input_MapMan_name_file=sys.argv[8]
+input_MapMan_name=open(input_MapMan_name_file, 'r', encoding="utf-8")
+dic_MapMan_name = {}
+for line in input_MapMan_name:
+	line_list=list(line.split('\t'))
+	dic_MapMan_name[line_list[0].replace('"', '')] = line_list[-1].rstrip("\n").replace('"', '')
+
+
 
 input_DE_file=sys.argv[1]
 input_DE=open(input_DE_file, 'r', encoding="utf-8")
@@ -51,7 +66,9 @@ for line in input_DE:
 		UniProt = ''
 		unigene = ''
 		GO = ''
-
+		MapMan_bin = ''
+		MapMan_name = ''
+		
 		line_list=list(line.split('\t'))
 		Solyc=line_list[0]
 		
@@ -65,7 +82,13 @@ for line in input_DE:
 			unigene = dic_unigene[Solyc]
 		if Solyc in dic_GO.keys():
 			GO = dic_GO[Solyc]
-			
-		output.write(Solyc+'\t'+line_list[1]+'\t'+line_list[2]+'\t'+line_list[3]+'\t'+line_list[4].rstrip('\n')+'\t'+Description+'\t'+entrez+'\t'+UniProt+'\t'+unigene+'\t'+GO+'\n')
+		if Solyc in dic_MapMan_bin.keys():
+			MapMan_bin = dic_MapMan_bin[Solyc]
+		if Solyc in dic_MapMan_name.keys():
+			MapMan_name = dic_MapMan_name[Solyc]
+		
+
+
+		output.write(Solyc+'\t'+line_list[1]+'\t'+line_list[2]+'\t'+line_list[3]+'\t'+line_list[4].rstrip('\n')+'\t'+Description+'\t'+entrez+'\t'+UniProt+'\t'+unigene+'\t'+GO+'\t'+MapMan_bin+'\t'+MapMan_name+'\n')
 	else:
-		output.write('gene'+'\t'+'logFC'+'\t'+'logCPM'+'\t'+'PValue'+'\t'+'FDR'+'\t'+'Description'+'\t'+'entrez'+'\t'+'UmiProt'+'\t'+'umigeme'+'\t'+'GO_Term'+'\n')	
+		output.write('gene'+'\t'+'logFC'+'\t'+'logCPM'+'\t'+'PValue'+'\t'+'FDR'+'\t'+'Description'+'\t'+'entrez'+'\t'+'UmiProt'+'\t'+'unigeme'+'\t'+'GO_Term'+'\t'+'MapMan_bin'+'\t'+'MapMan_name'+'\n')
