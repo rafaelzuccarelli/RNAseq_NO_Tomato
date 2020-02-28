@@ -67,6 +67,7 @@ for line in input_ortho:
 	line_list = list(line.split('\t'))
 	dic_ortho[line_list[0].replace('"', '')] = line_list[-1].rstrip("\n").replace('"', '')
 
+
 input_directory = wd + '/Input'
 for currentpath, folders, files in os.walk(input_directory):
 	for file in files:
@@ -92,8 +93,7 @@ for currentpath, folders, files in os.walk(input_directory):
 				NCBI = ''
 				ortho_ID = ''
 
-
-				line_list=list(line.split(';'))
+				line_list=list(line.split('\t'))
 				Solyc=line_list[0]
 				
 				if Solyc in dic_description.keys():
@@ -114,7 +114,34 @@ for currentpath, folders, files in os.walk(input_directory):
 					NCBI = dic_NCBI[Solyc]	
 				if Solyc in dic_ortho.keys():
 					ortho_ID = dic_ortho[Solyc]
-
-				output.write(Solyc+'\t'+line_list[1]+'\t'+line_list[2]+'\t'+line_list[3]+'\t'+line_list[4].rstrip('\n')+'\t'+Description+'\t'+entrez+'\t'+UniProt+'\t'+unigene+'\t'+GO+'\t'+MapMan_bin+'\t'+MapMan_name+'\t'+NCBI+'\t'+ortho_ID+'\n')
+				
+				output.write(Solyc+'\t'+
+							line_list[1]+'\t'+
+							line_list[2]+'\t'+
+							line_list[3]+'\t'+
+							line_list[4].rstrip('\n')+'\t'+
+							Description+'\t'+
+							entrez+'\t'+
+							UniProt+'\t'+
+							unigene+'\t'+
+							GO+'\t'+
+							MapMan_bin+'\t'+
+							MapMan_name+'\t'+
+							NCBI+'\t'+
+							ortho_ID+'\n')
+					
 			else:
-				output.write('gene'+'\t'+'logFC'+'\t'+'logCPM'+'\t'+'PValue'+'\t'+'FDR'+'\t'+'Description'+'\t'+'entrez'+'\t'+'Uniprot'+'\t'+'unigeme'+'\t'+'GO_Term'+'\t'+'MapMan_bin'+'\t'+'MapMan_name'+'\t'+'NCBI'+'\t'+'A._thaliana_ortholog'+'\n')
+				output.write('gene'+'\t'+
+					'logFC'+'\t'+
+					'logCPM'+'\t'+
+					'PValue'+'\t'+
+					'FDR'+'\t'+
+					'Description'+'\t'+
+					'entrez'+'\t'+
+					'Uniprot'+'\t'+
+					'unigeme'+'\t'+
+					'GO_Term'+'\t'+
+					'MapMan_bin'+'\t'+
+					'MapMan_name'+'\t'+
+					'NCBI'+'\t'+
+					'A._thaliana_ortholog'+'\n')
