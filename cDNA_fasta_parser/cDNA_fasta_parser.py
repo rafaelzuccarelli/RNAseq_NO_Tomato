@@ -2,12 +2,12 @@
 import sys
 import re
 
-input_fasta_file=sys.argv[1]
-input_fasta=open(input_fasta_file, 'r', encoding="utf-8")
+input_fasta_file = sys.argv[1]
+input_fasta = open(input_fasta_file, 'r', encoding = "utf-8")
 
-input_fasta_file_name=input_fasta_file.split('.')
-output_name=input_fasta_file_name[0]+"_Solyc_Description_UniProt"+".csv"
-output=open(output_name, 'w')
+input_fasta_file_name = input_fasta_file.split('.')
+output_name = input_fasta_file_name[0]+"_Solyc_Description_UniProt"+".csv"
+output = open(output_name, 'w')
 
 for line in input_fasta:
 	if line.startswith('>Solyc') and re.search("AHRD", line): #lines starting with >Solyc
