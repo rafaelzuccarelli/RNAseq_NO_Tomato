@@ -11,13 +11,11 @@ REVIGO_dic = {}
 for line in input_REVIGO:
     line_list = line.split(',')
     REVIGO_dic[line_list[0]] = line_list
-
-input_REVIGO_file = wd + '/from_REVIGO/REVIGO.csv'
-input_REVIGO = open(input_REVIGO_file, 'r', encoding = "utf-7")
 eliminated_dic = {}
 for line in input_REVIGO:
     line_list = line.split(',')
     eliminated_dic[line_list[0]] = line_list[10].rstrip("\n").replace('"', '')
+
 
 input_directory = wd + '/from_PANTHER'
 for currentpath, folders, files in os.walk(input_directory):
