@@ -1,7 +1,6 @@
 import sys
 import os
-from PIL import Image, ImageDraw, ImageFont
-import random
+from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 wd = os.getcwd()
 
@@ -17,7 +16,9 @@ for line in input_scale:
     r_scale.append(int(line_list[0].rstrip('\n')))
     g_scale.append(int(line_list[1].rstrip('\n')))
     b_scale.append(int(line_list[2].rstrip('\n')))
-    value_scale.append(float(line_list[5]))
+    
+    #column position for values to scale (3 = -3 to 3, 4 = -2.5 to 2.5, 5 = -2 to 2, 6 = -1.5 to 1.5 and 7 = -1 to 1)
+    value_scale.append(float(line_list[3])) 
 
 bin_set = set()
 bin_set_1st = set()
@@ -32,7 +33,6 @@ Solyc_fold_change_dic = {}
 Solyc_bin_name_dic = {}
 Solyc_list = []
 list2 = []
-
 
 input_directory = wd + '/Input'
 for currentpath, folders, files in os.walk(input_directory):
@@ -92,14 +92,16 @@ for currentpath, folders, files in os.walk(input_directory):
         
         list_test = [0]  
     
-# creates a image file to put all 1st level bins
     x0 = 500 #pixel positions to insert text and objects in the image
     y0 = 145
     x1 = 520
-    y1 = 165 
+    y1 = 165
     
+    # creates a image file to put all 1st level bins
     image_png_1st = wd + '/Output/' + '1st.png'
-    img = Image.new('RGB', (20480,3508), color = (255,255,255))
+    scale = Image.open('/media/rafael/2803D1E32A95159A/RNAseq/Scripts/MapMan_parser/heatmap_2nd/scale_3.png')
+    img = Image.new('RGB', (13480,3508), color = (255,255,255))
+    img.paste(scale)
     d = ImageDraw.Draw(img)
     fnt = ImageFont.truetype('/usr/share/fonts/truetype/msttcorefonts/Verdana.ttf', 25)
     yn = 160
@@ -167,28 +169,13 @@ for currentpath, folders, files in os.walk(input_directory):
     
     d.text((20,ym), underscore, font=fnt, fill=(0,0,0))    
     img.save(image_png_1st, 'PNG')
+    
 #creates a file for each 1st level bin
-    for l in first_index:
-        print(bin_list_1st[l])
-        x0 = 850 #pixel positions to insert text and objects in the image
-        y0 = 145
-        x1 = 870
-        y1 = 165 
-        file_name = bin_list_1st[l]
-        image_png_2nd = wd + '/Output/' + file_name + '.png'
-        img = Image.new('RGB', (3580,1750), color = (255,255,255))
-        d = ImageDraw.Draw(img)
-        fnt = ImageFont.truetype('/usr/share/fonts/truetype/msttcorefonts/Verdana.ttf', 25)
-        yn = 160
-        ym = 110
-        dot = '.'
-        underscore = '_______________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________'
-         
+    for l in first_index:              
         bin_set_1st_2nd = set()
         bin_list_1st_2nd = []
         set_bincode_binname = set()
         sety = set()
-
         for i in second_index:#gets all bins 2nd level and names, put in a set and print out to the image
             bin_2nd = bin_list_2nd[i]
             bin_name_2nd = ''
@@ -209,10 +196,61 @@ for currentpath, folders, files in os.walk(input_directory):
                         bincode_binname = bin_2nd + ' ' + bin_name_2nd
                         if bin_list_1st[l] == bin_1st:
                             set_bincode_binname.add(bincode_binname)
-
         list_bincode_binname = list(set_bincode_binname)
-        list_bincode_binname.sort()               
-                                                      
+        list_bincode_binname.sort()
+        binname_size = 0
+        gene_number_in_bin = 0
+        
+        for binname in list_bincode_binname:
+            if len(binname) > binname_size:
+                binname_size = len(binname)
+        file_height = 160 + (len(list_bincode_binname) * 80)
+        
+        for m in list_bincode_binname:
+            list3 = []
+            bincode_binname_list = m.split(' ')
+            bin = bincode_binname_list[0].split('.')
+            first = bin[0]
+            second = bin[0] + '.' + bin[1]
+            fold_change_set = set()
+            for Solyc in Solyc_list:
+                Solyc_bin = Solyc_bin_dic[Solyc]
+                Solyc_bin_name = Solyc_bin_name_dic[Solyc]
+                index = list(range(0,len(Solyc_bin)))
+                for j in index:
+                    if len(Solyc_bin[j].split('.')) >= 2:
+                        bin_split_list = Solyc_bin[j].split('.')
+                        bin_1st = bin_split_list[0]
+                        bin_2nd = bin_split_list[0] + '.' + bin_split_list[1]
+                        if int(bin_1st) < 10:
+                            bin_1st = '0' + bin_1st
+                            bin_2nd = '0' + bin_2nd
+                        if bin_2nd == second:
+                            fold_change_set.add(float(Solyc_fold_change_dic[Solyc]))
+            list3 = list(fold_change_set)
+            list3.sort(reverse = True)
+            if len(list3) > gene_number_in_bin:
+                gene_number_in_bin = len(list3)
+        heatmap_lenght = int((gene_number_in_bin * 21)/ 3 + 30)
+            
+        print(bin_list_1st[l])
+        x0 = binname_size * 16 #pixel positions to insert text and objects in the image
+        y0 = 145
+        x1 = x0 + 20
+        y1 = 165
+        file_lenght = x0 + heatmap_lenght
+        file_name = bin_list_1st[l]
+        image_png_2nd = wd + '/Output/' + file_name + '.png'
+        img = Image.new('RGB', (file_lenght,file_height), color = (255,255,255))
+        scale = Image.open('/media/rafael/2803D1E32A95159A/RNAseq/Scripts/MapMan_parser/heatmap_2nd/scale_3.png')
+        img.paste(scale)
+        d = ImageDraw.Draw(img)
+        fnt = ImageFont.truetype('/usr/share/fonts/truetype/msttcorefonts/Verdana.ttf', 25)
+        yn = 160
+        ym = 110
+        dot = '.'
+        underscore = '____________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________'
+        
         for m in list_bincode_binname:
             print(m)
             d.text((20,yn), m, font=fnt, fill=(0,0,0))
@@ -239,17 +277,17 @@ for currentpath, folders, files in os.walk(input_directory):
                             fold_change_set.add(float(Solyc_fold_change_dic[Solyc]))
             list3 = list(fold_change_set)
             list3.sort(reverse = True)
+            file_lenght = len(list3)
             #print(list3)
             index_list3 = list(range(0, len(list3)))
             #print(index_list3)
-            #print(list3)
+            #print(list3)      
             for index in index_list3:
                 #print(list3[index])
                 
                 index_scale = min(range(len(value_scale)), key = lambda m: abs(value_scale[m] - float(list3[index])))#get the index of values_scale, based in the nearest value
                 n = index_scale
                 
-
                 r = r_scale[n]
                 g = g_scale[n]
                 b = b_scale[n]
@@ -262,14 +300,10 @@ for currentpath, folders, files in os.walk(input_directory):
                     d.rectangle((x0, y0 + 40, x1, y1 + 40), fill = (r, g, b), width = 2, outline=(0, 0, 0))
                     x0 = x0 + 20 #move block right to the next step
                     x1 = x1 + 20
-
-
-            
             #print(m)
-            
-            x0 = 850
+            x0 = binname_size * 16
             y0 = y0 + 75
-            x1 = 870
+            x1 = x0 + 20
             y1 = y1 + 75
             yn = yn + 75 
             ym = ym + 75
